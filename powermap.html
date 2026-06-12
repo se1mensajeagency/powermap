@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>POWER MAP™ — Calculadora de Autoridad</title>
+<style>
+:root{color-scheme:light;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{min-height:100vh;background:linear-gradient(160deg,#0F0A2E 0%,#1A0533 40%,#0D1F3C 100%);padding:24px 16px;font-family:'Inter',system-ui,sans-serif;color:#1E293B;}
+.wrap{max-width:620px;margin:0 auto;}
+.header{text-align:center;margin-bottom:28px;}
+.header h1{color:#fff;font-size:26px;font-weight:800;}
+.header p{color:#A5B4FC;font-size:14px;margin-top:6px;}
+.progress{display:flex;gap:4px;margin-bottom:20px;}
+.prog-item{flex:1;text-align:center;}
+.prog-bar{height:4px;border-radius:999px;margin-bottom:5px;transition:background .3s;}
+.prog-bar.active{background:#7C3AED;}.prog-bar.inactive{background:rgba(255,255,255,.2);}
+.prog-label{font-size:10px;font-weight:600;}
+.prog-label.active{color:#C4B5FD;}.prog-label.inactive{color:rgba(255,255,255,.4);}
+.card{background:#fff;border-radius:20px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.step-label{font-size:11px;color:#7C3AED;font-weight:700;letter-spacing:2px;margin-bottom:4px;}
+.step-title{font-size:19px;color:#1E293B;font-weight:700;margin-bottom:4px;}
+.step-sub{font-size:13px;color:#64748B;margin-bottom:18px;}
+.fg{display:flex;flex-direction:column;margin-bottom:16px;}
+.fg label{font-size:14px;font-weight:600;color:#1E293B;margin-bottom:6px;line-height:1.5;display:flex;align-items:flex-start;gap:6px;}
+.fg input,.fg textarea{width:100%;padding:11px 13px;border:2px solid #E2E8F0;border-radius:10px;font-size:15px;font-family:inherit;background:#fff;color:#1E293B;outline:none;transition:border .2s;}
+.fg input:focus,.fg textarea:focus{border-color:#7C3AED;}
+.fg textarea{resize:vertical;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+.tip-wrap{position:relative;display:inline-block;margin-left:4px;flex-shrink:0;}
+.tip-icon{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;background:#E0E7FF;color:#4338CA;font-size:10px;font-weight:700;cursor:help;}
+.tip-box{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1E1B4B;color:#E0E7FF;font-size:12px;padding:8px 12px;border-radius:8px;width:230px;z-index:99;line-height:1.6;box-shadow:0 4px 20px rgba(0,0,0,.3);display:none;font-weight:400;}
+.tip-wrap:hover .tip-box{display:block;}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+.pill{padding:8px 13px;border-radius:999px;border:2px solid #E2E8F0;background:#fff;color:#374151;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;font-family:inherit;}
+.pill:hover{border-color:#C4B5FD;}
+.pill.selected{border-color:#7C3AED;background:#7C3AED;color:#fff;font-weight:700;}
+.pill.sel-red{border-color:#E11D48;background:#E11D48;color:#fff;font-weight:700;}
+.pill.sel-green{border-color:#059669;background:#059669;color:#fff;font-weight:700;}
+.pill.sel-amber{border-color:#D97706;background:#D97706;color:#fff;font-weight:700;}
+.check-btn{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;border:2px solid #E2E8F0;background:#fff;cursor:pointer;text-align:left;width:100%;margin-bottom:8px;font-family:inherit;transition:all .15s;}
+.check-btn.on{border-color:#7C3AED;background:#EDE9FE;}
+.check-box{width:20px;height:20px;border-radius:5px;border:2px solid #CBD5E1;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+.check-box.on{border-color:#7C3AED;background:#7C3AED;}
+.check-label{font-size:14px;color:#374151;font-weight:400;}
+.check-label.on{color:#5B21B6;font-weight:600;}
+.banner{border-radius:14px;padding:16px;border-left:4px solid;margin-bottom:16px;}
+.banner-title{font-weight:700;font-size:15px;margin-bottom:5px;}
+.banner-desc{font-size:13px;color:#374151;line-height:1.7;}
+.btn-row{display:flex;gap:10px;margin-top:20px;}
+.btn-primary{background:linear-gradient(135deg,#7C3AED,#4F46E5);color:#fff;border:none;padding:14px 28px;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;flex:1;transition:opacity .2s;font-family:inherit;}
+.btn-primary:hover{opacity:.9;}
+.btn-primary:disabled{opacity:.45;cursor:not-allowed;}
+.btn-back{background:transparent;color:#7C3AED;border:2px solid #7C3AED;padding:12px 22px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;}
+.sec-label{font-size:11px;font-weight:700;letter-spacing:2px;margin-bottom:8px;}
+.hero{background:linear-gradient(135deg,#1E1B4B,#312E81,#4C1D95);border-radius:24px;padding:28px;color:#fff;text-align:center;position:relative;overflow:hidden;margin-bottom:18px;}
+.hero-eyebrow{font-size:11px;color:#C4B5FD;font-weight:700;letter-spacing:3px;margin-bottom:4px;}
+.hero-sub{font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:22px;}
+.level-badge{display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,.12);border-radius:999px;padding:9px 18px;margin-top:18px;}
+.level-badge-label{font-size:10px;color:rgba(255,255,255,0.6);font-weight:600;text-align:left;}
+.level-badge-name{font-size:15px;font-weight:800;color:#fff;}
+.gladwell{background:rgba(251,207,232,.15);border-radius:12px;padding:8px 14px;font-size:12px;color:#FBCFE8;margin-top:12px;}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.stat-card{border-radius:14px;padding:14px;text-align:center;}
+.stat-icon{font-size:22px;margin-bottom:4px;}
+.stat-num{font-size:22px;font-weight:900;color:#fff;margin-bottom:2px;}
+.stat-lbl{font-size:11px;font-weight:600;line-height:1.4;}
+.result-card{background:#fff;border-radius:20px;padding:22px;margin-bottom:18px;box-shadow:0 4px 20px rgba(0,0,0,.08);}
+.result-dark{background:linear-gradient(135deg,#1E1B4B,#1E2A3A);border-radius:20px;padding:22px;margin-bottom:18px;color:#fff;}
+.result-dark p,.result-dark div{color:#E2E8F0;}
+.tag-pill{display:inline-block;padding:6px 13px;border-radius:999px;font-size:12px;font-weight:600;margin:4px;}
+.strength-item{display:flex;align-items:flex-start;gap:12px;border-radius:12px;padding:14px;margin-bottom:10px;}
+.strength-num{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:13px;flex-shrink:0;}
+.phrase-item{background:rgba(255,255,255,.07);border-left:3px solid #A5B4FC;border-radius:0 8px 8px 0;padding:12px 14px;margin-bottom:10px;font-size:14px;line-height:1.8;font-style:italic;}
+.phrase-redes{background:rgba(255,255,255,.06);border-radius:12px;padding:14px;margin-bottom:10px;font-size:14px;line-height:1.8;color:#E2E8F0;border:1px solid rgba(196,181,253,.2);}
+.affirmation-item{background:rgba(253,230,138,.07);border-left:3px solid #FDE68A;border-radius:0 8px 8px 0;padding:12px 14px;margin-bottom:10px;font-size:14px;line-height:1.8;color:#FEF9C3;font-style:italic;}
+.bible-card{background:linear-gradient(135deg,#0F0A2E,#1E1B4B);border-radius:20px;padding:24px;margin-bottom:18px;text-align:center;border:1px solid rgba(165,180,252,.3);}
+.bible-verse{font-size:18px;font-weight:700;color:#E0E7FF;line-height:1.8;margin-bottom:12px;font-style:italic;}
+.bible-ref{font-size:13px;color:#A5B4FC;font-weight:700;letter-spacing:2px;}
+.info-box{background:#F8FAFC;border-radius:10px;padding:14px;font-size:13px;line-height:2;color:#1E293B;white-space:pre-wrap;font-family:monospace;}
+.copy-btn{background:#EDE9FE;color:#5B21B6;border:none;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.copy-btn.ok{background:#D1FAE5;color:#065F46;}
+.reset-btn{width:100%;background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.2);padding:14px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:20px;}
+.level-row{display:flex;align-items:flex-start;gap:12px;padding:12px;border-radius:12px;margin-bottom:8px;}
+.level-row.cur{background:#EDE9FE;border:2px solid #C4B5FD;}
+.level-row.other{background:#F8FAFC;}
+.level-info{flex:1;}
+.level-name-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;}
+.level-name{font-weight:700;font-size:14px;}
+.level-hrs{font-size:11px;color:#94A3B8;font-weight:600;}
+.level-desc{font-size:12px;color:#64748B;margin-bottom:3px;line-height:1.6;}
+.level-neuro{font-size:11px;color:#94A3B8;font-style:italic;line-height:1.5;}
+.you-badge{background:#7C3AED;color:#fff;font-size:9px;font-weight:800;padding:3px 8px;border-radius:999px;letter-spacing:1px;flex-shrink:0;margin-top:4px;}
+.donut-legend{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;text-align:left;}
+.legend-item{display:flex;align-items:flex-start;gap:7px;}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px;}
+.legend-name{font-size:11px;color:rgba(255,255,255,.6);font-weight:600;}
+.legend-val{font-size:14px;font-weight:800;color:#fff;}
+.legend-pct{font-size:11px;color:rgba(255,255,255,.5);}
+.loading-box{background:#fff;border-radius:20px;padding:36px 24px;text-align:center;margin-bottom:18px;}
+.load-icon{font-size:32px;display:block;animation:spin 2s linear infinite;}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.load-msg{color:#7C3AED;font-weight:700;margin-top:14px;font-size:15px;min-height:22px;}
+.load-sub{color:#94A3B8;font-size:12px;margin-top:4px;}
+.load-bar-wrap{width:100%;background:#EDE9FE;border-radius:999px;height:5px;margin-top:18px;overflow:hidden;}
+.load-bar-fill{height:5px;border-radius:999px;background:linear-gradient(90deg,#7C3AED,#A78BFA);animation:loadfill 3s ease-out forwards;}
+@keyframes loadfill{from{width:0%}to{width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#7C3AED,#4F46E5);border-radius:12px;padding:8px 16px;margin-bottom:12px;">
+      <span style="color:#fff;font-size:18px;font-weight:900;">✦</span>
+      <span style="color:#fff;font-size:12px;font-weight:800;letter-spacing:2px;">POWER ACADEMY</span>
+    </div>
+    <h1>POWER MAP™</h1>
+    <p style="font-size:11px;color:rgba(255,255,255,.4);font-weight:700;letter-spacing:3px;margin:3px 0 0;">CALCULADORA DE AUTORIDAD</p>
+    <p style="font-size:14px;color:#C4B5FD;max-width:460px;margin:8px auto 0;line-height:1.6;">La calculadora de autoridad que visualiza el conocimiento, la experiencia y los resultados que respaldan tu voz.</p>
+    <p style="color:rgba(255,255,255,.3);font-size:11px;margin-top:8px;">por <strong style="color:rgba(255,255,255,.55);">Lala Herrera</strong> · Se1Mensaje Agency · @lalaherreratm</p>
+  </div>
+  <div id="root"></div>
+</div>
+<script>
+const C={
+  tacita:{bg:"#7C3AED",light:"#EDE9FE",text:"#5B21B6",pill:"#DDD6FE"},
+  empirica:{bg:"#E11D48",light:"#FFF1F2",text:"#BE123C",pill:"#FFE4E6"},
+  academica:{bg:"#059669",light:"#ECFDF5",text:"#065F46",pill:"#D1FAE5"},
+  practica:{bg:"#D97706",light:"#FFFBEB",text:"#92400E",pill:"#FDE68A"},
+};
+const LEVELS=[
+  {max:20,label:"Primer Umbral",emoji:"🌱",desc:"El inicio del camino. Toda persona de alto impacto comenzó exactamente aquí.",neuro:"Tu cerebro está formando las primeras conexiones. Cada hora suma más de lo que imaginas."},
+  {max:100,label:"Competente Funcional",emoji:"🌿",desc:"Actúas de forma independiente. Has superado la curva inicial.",neuro:"Tus rutas de pensamiento se consolidan. Resuelves situaciones sin tanto esfuerzo consciente."},
+  {max:500,label:"Intermedio Avanzado",emoji:"🌳",desc:"Te desempeñas profesionalmente. Tu cerebro resuelve lo que antes requería esfuerzo.",neuro:"El conocimiento práctico supera al teórico. Anticipas situaciones antes de analizarlas."},
+  {max:1000,label:"Referente Local",emoji:"⭐",desc:"Estás en el 1-2% superior de tu campo. Puedes enseñar y crear conocimiento nuevo.",neuro:"Tu mente opera con patrones altamente especializados. La ejecución se vuelve fluida y automática."},
+  {max:5000,label:"Referente Reconocido",emoji:"🌟",desc:"Alto rendimiento. Puedes redefinir estándares y liderar en tu campo.",neuro:"Tu cerebro procesa situaciones complejas con una velocidad que otros no comprenden. Eso es maestría real."},
+  {max:Infinity,label:"Maestro Clase Mundial",emoji:"🏆",desc:"Nivel élite. Lo que haces es una segunda naturaleza. Eres referente.",neuro:"Tu mente opera al máximo nivel de especialización. Puedes innovar y enseñar incluso bajo presión extrema."},
+];
+const OPT={
+  crisis:[
+    {label:"Ninguna todavía",val:0,n:null},
+    {label:"1 a 2 (duelo, crisis, separación, quiebre...)",val:400,n:"1-2"},
+    {label:"3 a 5 procesos de quiebre profundo",val:800,n:"3-5"},
+    {label:"6 o más",val:1400,n:"6+"},
+  ],
+  proceso:[
+    {label:"Poco o nada todavía",val:0},
+    {label:"1 a 2 años",val:400},
+    {label:"3 a 6 años",val:1000},
+    {label:"7 años o más",val:2000},
+  ],
+  cursos:[
+    {label:"Ninguno",val:0},
+    {label:"1 a 5",val:120},
+    {label:"6 a 15",val:400},
+    {label:"16 a 30",val:900},
+    {label:"Más de 30",val:1600},
+  ],
+  audio:[
+    {label:"Casi nada (menos de 1 hora al mes)",val:0},
+    {label:"Ocasional (1 a 4 horas al mes)",val:50},
+    {label:"Regular (1 a 4 horas por semana)",val:200},
+    {label:"Constante (más de 4 horas por semana)",val:500},
+  ],
+  eventos:[
+    {label:"Ninguno",n:0,nd:"0",val:0},
+    {label:"1 a 10",n:5,nd:"+5",val:40},
+    {label:"11 a 30",n:20,nd:"+20",val:120},
+    {label:"31 a 60",n:45,nd:"+45",val:240},
+    {label:"61 a 100",n:80,nd:"+80",val:400},
+    {label:"Más de 100",n:120,nd:"+100",val:600},
+  ],
+  personas:[
+    {label:"Menos de 10",n:"<10",val:0},
+    {label:"10 a 50",n:"+10",val:80},
+    {label:"51 a 200",n:"+50",val:350},
+    {label:"201 a 500",n:"+200",val:900},
+    {label:"501 a 1.000",n:"+500",val:1500},
+    {label:"1.001 a 5.000",n:"+1.000",val:2200},
+    {label:"Más de 5.000",n:"+5.000",val:3500},
+  ],
+  alcance:[
+    {label:"Local: mi ciudad o región",val:0,paises:0},
+    {label:"Nacional: varios estados o ciudades",val:200,paises:1},
+    {label:"Internacional: 2 a 5 países",val:500,paises:3},
+    {label:"Internacional: más de 5 países",val:1000,paises:6},
+  ],
+};
+const INIT={
+  nombre:"",profesion:"",area:"",edadActual:"",
+  donPropio:"",edadDon:"",edadEmpezó:"",
+  crisis:null,proceso:null,mentoriasNum:"",librosLeidos:"",
+  carreras:"",diplomados:"",cursos:null,librosEscritos:"",materialCreado:"",audio:null,
+  añosTrabajando:"",sesiones:"",eventos:null,personas:null,
+  tieneRedes:false,tieneRedes1a3:false,tieneRedesMas3:false,
+  tienePodcast:false,tieneYoutube:false,tieneTikTok:false,
+  alcance:null,
+  logros:"",logroWow:"",clienteDescribe:"",perspectiva:"",dudaPrincipal:"",
+};
+let state={step:1,d:{...INIT},result:null,ai:null,loading:false,error:"",copied:false};
+
+function calcH(d){
+  const edadDon=parseInt(d.edadDon)||0,edadActual=parseInt(d.edadActual)||0,edadEmpezó=parseInt(d.edadEmpezó)||0;
+  const añosDesdeDon=edadDon>0&&edadActual>edadDon?(edadActual-edadDon):0;
+  const añosDesdeEmpezó=edadEmpezó>0&&edadActual>edadEmpezó?(edadActual-edadEmpezó):0;
+  const tacita=añosDesdeDon*300+añosDesdeEmpezó*500;
+  const empirica=(d.crisis||0)+(d.proceso||0);
+  const audio=d.audio||0,libroB=d.librosEscritos?.trim().length>2?250:0,matB=d.materialCreado?.trim().length>2?180:0;
+  const academica=(d.cursos||0)+audio+libroB+matB;
+  const años=parseFloat(d.añosTrabajando)||0,ses=parseFloat(d.sesiones)||0;
+  const evOpt=OPT.eventos.find(o=>o.val===d.eventos),evN=evOpt?(parseInt(evOpt.n)||0):0;
+  const contenidoVal=(d.tieneRedesMas3?400:d.tieneRedes1a3?200:d.tieneRedes?80:0)+(d.tienePodcast?300:0)+(d.tieneYoutube?250:0)+(d.tieneTikTok?220:0);
+  const alcance=d.alcance||0;
+  const practica=años*400+ses*0.8+(evN*4)+(d.personas||0)+contenidoVal+alcance;
+  return{tacita,empirica,academica,practica,total:tacita+empirica+academica+practica};
+}
+
+function buildStats(d,h){
+  const st=[];
+  const años=parseFloat(d.añosTrabajando)||0,ses=parseFloat(d.sesiones)||0;
+  const edadDon=parseInt(d.edadDon)||0,edadActual=parseInt(d.edadActual)||0;
+  const añosConDon=edadDon>0&&edadActual>edadDon?edadActual-edadDon:0;
+  const evOpt=OPT.eventos.find(o=>o.val===d.eventos),perOpt=OPT.personas.find(o=>o.val===d.personas);
+  const alcOpt=OPT.alcance.find(o=>o.val===d.alcance);
+  const canales=[d.tieneRedesMas3||d.tieneRedes1a3||d.tieneRedes,d.tienePodcast,d.tieneYoutube,d.tieneTikTok].filter(Boolean).length;
+  const crisisOpt=OPT.crisis.find(o=>o.val===d.crisis);
+  if(años>=1)st.push({icon:"⏱️",num:`+${años}`,label:"años de trayectoria profesional",c:C.practica});
+  if(ses>=50)st.push({icon:"🎯",num:`+${Math.round(ses).toLocaleString()}`,label:"sesiones y acompañamientos realizados",c:C.practica});
+  if(d.personas>0&&perOpt)st.push({icon:"👥",num:perOpt.n,label:"personas acompañadas",c:C.practica});
+  if(d.eventos>0&&evOpt&&evOpt.n>0)st.push({icon:"🎤",num:evOpt.nd||`+${evOpt.n}`,label:"eventos y conferencias facilitados",c:C.practica});
+  if(d.alcance>0&&alcOpt&&alcOpt.paises>0)st.push({icon:"🌍",num:`+${alcOpt.paises}`,label:"países de alcance internacional",c:C.practica});
+  if(añosConDon>=5)st.push({icon:"💡",num:`+${añosConDon}`,label:"años de experiencia acumulada en su campo de especialización",c:C.tacita});
+  const añosConDonEmpezó=(()=>{const ee=parseInt(d.edadEmpezó)||0,ea=parseInt(d.edadActual)||0;return ee>0&&ea>ee?ea-ee:0;})();
+  if(añosConDonEmpezó>=3)st.push({icon:"🌱",num:`+${añosConDonEmpezó}`,label:"años ejerciendo su don, formal o informalmente",c:C.tacita});
+  if(d.crisis>0&&crisisOpt&&crisisOpt.n)st.push({icon:"🔥",num:crisisOpt.n,label:"crisis o quiebres profundos que forjaron tu carácter",c:C.empirica});
+  const librosN=parseInt(d.librosLeidos)||0;
+  if(librosN>=3)st.push({icon:"📚",num:`+${librosN}`,label:"libros de especialidad leídos y aplicados en su formación",c:C.academica});
+  const dipCount=d.diplomados?.trim().length>4?d.diplomados.split(",").filter(x=>x.trim().length>1).length:(d.diplomados?.trim().length>2?1:0);
+  const carCount=d.carreras?.trim().length>4?d.carreras.split(",").filter(x=>x.trim().length>1).length:(d.carreras?.trim().length>2?1:0);
+  const certTotal=dipCount+carCount;
+  if(certTotal>=1)st.push({icon:"📜",num:`+${certTotal}`,label:certTotal===1?"formación académica o certificación completada":"formaciones académicas y certificaciones completadas",c:C.academica});
+  if(d.librosEscritos?.trim().length>2){
+    const lNum=parseInt((d.librosEscritos||'').match(/\d+/)?.[0])||0;
+    st.push({icon:"✍️",num:lNum>=2?`+${lNum}`:"Autor/a",label:"libros, guías o programas publicados o documentados",c:C.academica});
+  }
+  if(canales>=2)st.push({icon:"📱",num:`${canales}`,label:"canales de contenido activos",c:C.practica});
+  if(h.total>=500)st.push({icon:"🏅",num:`+${h.total>=1000?(h.total/1000).toFixed(1)+"K":h.total}`,label:"horas de dominio en su campo",c:{bg:"#4F46E5",light:"#EEF2FF",text:"#3730A3",pill:"#C7D2FE"}});
+  return st.slice(0,12);
+}
+
+function buildInfo(d,h,tagline){
+  const stats=buildStats(d,h);
+  const scored=stats.map(s=>{
+    const lbl=s.label.toLowerCase();
+    const score=lbl.includes('hora')?0:lbl.includes('año')?1:lbl.includes('person')?2:lbl.includes('ses')?3:lbl.includes('form')||lbl.includes('certif')?4:lbl.includes('libro')||lbl.includes('public')?5:lbl.includes('event')?6:lbl.includes('país')?7:lbl.includes('canal')?8:9;
+    return{...s,score};
+  }).sort((a,b)=>a.score-b.score);
+  const top=scored.slice(0,6);
+  const lines=[];
+  if(tagline)lines.push(`"${tagline}"`);
+  lines.push("");
+  lines.push(`${d.nombre} | ${d.profesion}`);
+  lines.push(`${d.area}`);
+  lines.push("");
+  top.forEach(s=>lines.push(`${s.icon} ${s.num} ${s.label}`));
+  return lines.join("\n");
+}
+
+function generateAnalysis(d,h){
+  const years=parseFloat(d.añosTrabajando)||0;
+  const ses=parseFloat(d.sesiones)||0;
+  const perOpt=OPT.personas.find(o=>o.val===d.personas);
+  const evOpt=OPT.eventos.find(o=>o.val===d.eventos);
+  const edadDon=parseInt(d.edadDon)||0,edadActual=parseInt(d.edadActual)||0,edadEmpezó=parseInt(d.edadEmpezó)||0;
+  const añosConDon=edadDon>0&&edadActual>edadDon?edadActual-edadDon:0;
+  const añosConDonReal=edadEmpezó>0&&edadActual>edadEmpezó?edadActual-edadEmpezó:0;
+  const añosTotalesExperiencia=Math.max(years,añosConDonReal);
+  const tipos=["tacita","empirica","academica","practica"];
+  const dom=tipos.reduce((a,b)=>h[a]>h[b]?a:b);
+  const nomT={tacita:"Autoridad de Origen",empirica:"Autoridad Forjada",academica:"Autoridad Académica",practica:"Autoridad en Campo"};
+  const totalK=h.total>=1000?(h.total/1000).toFixed(1)+"K":h.total;
+  const prof=cap(d.profesion)||"profesional";
+  const area=clean(d.area)||"tu campo";
+  const n=cap(d.nombre)||"tú";
+  const don=clean(d.donPropio);
+
+  // helpers for cleaning user free-text (fix spacing/capitalization basics)
+  function clean(t){
+    if(!t)return"";
+    let s=t.trim().replace(/\s+/g," ");
+    s=s.replace(/\s+([,.;:!?])/g,"$1");
+    s=s.replace(/([.;:!?])([^\s"'])/g,"$1 $2");
+    if(s.length)s=s.charAt(0).toLowerCase()+s.slice(1);
+    return s;
+  }
+  function cap(t){
+    if(!t)return"";
+    let s=t.trim().replace(/\s+/g," ");
+    return s.charAt(0).toUpperCase()+s.slice(1);
+  }
+  function sentenceCase(t){
+    if(!t)return"";
+    let s=clean(t);
+    return s.charAt(0).toUpperCase()+s.slice(1);
+  }
+
+  // ---- TAGLINE ----
+  let tagline="";
+  if(añosTotalesExperiencia>=10&&perOpt&&perOpt.val>=900)
+    tagline=`${añosTotalesExperiencia} años formando a ${perOpt.n} personas en ${area}, con resultados que hablan por sí solos`;
+  else if(añosTotalesExperiencia>=5)
+    tagline=`${añosTotalesExperiencia} años de autoridad real en ${area}: conocimiento que transforma, no solo informa`;
+  else if(ses>=100)
+    tagline=`${Math.round(ses)} acompañamientos en ${area} que respaldan cada palabra que digo`;
+  else
+    tagline=`Una perspectiva única en ${area} forjada con experiencia real y propósito claro`;
+
+  // ---- REVELACION ----
+  const percen=h.total>=10000?"el 0.1%":h.total>=5000?"el 1%":h.total>=1000?"el 5%":h.total>=500?"el 10%":"el 20%";
+  let revelacion=`${n}, acumulas ${totalK} horas de dominio en ${area}: ${h.tacita>0?Math.round(h.tacita).toLocaleString()+" de conocimiento forjado"+(añosConDonReal>0?" desde los "+edadEmpezó+" años":añosConDon>0?" desde los "+edadDon+" años":""):""}${h.empirica>0?(h.tacita>0?", ":"")+Math.round(h.empirica).toLocaleString()+" de experiencia vivida a través de procesos que te transformaron":""}${h.practica>0?", y "+Math.round(h.practica).toLocaleString()+" de práctica real con personas":""}.`;
+  revelacion+=` Eso te coloca entre ${percen} de personas en tu campo con este nivel de experiencia integrada`;
+  if(añosTotalesExperiencia>years&&añosTotalesExperiencia>=years+3){
+    revelacion+=`. Aunque llevas ${years} años trabajando con personas de forma estructurada, tu relación con tu don viene desde hace ${añosTotalesExperiencia} años: esa base es parte de tu autoridad, aunque no siempre la cuentes`;
+  }else if(years>=5){
+    revelacion+=`, con ${years} años de trabajo directo con personas`;
+  }
+  if(perOpt&&perOpt.val>=80)revelacion+=`, habiendo servido a ${perOpt.n} personas`;
+  revelacion+=`.`;
+
+  // ---- TIPO DOMINANTE ----
+  const tipoDominante=nomT[dom];
+  const explicTipo={
+    tacita:`Tu mayor ventaja es que llevas este conocimiento desde antes de que fuera tu trabajo: es parte de quien eres, no solo de lo que sabes hacer. Eso genera una autenticidad que muy pocos pueden imitar o comprar. Cuando hablas, las personas sienten que escuchan a alguien que vive lo que enseña, y esa confianza se construye antes de la primera sesión.`,
+    empirica:`Tu credencial más poderosa no es un diploma: es que saliste del otro lado de lo que acompañas. Quienes buscan a alguien que les entienda de verdad, no solo que los aconseje desde afuera, te van a encontrar a ti. Esa autoridad forjada en el fuego no se puede estudiar ni fabricar: solo se obtiene viviéndola.`,
+    academica:`Tu combinación de formación estructurada y práctica real te da la capacidad de articular lo que otros solo intuyen. Puedes hablar con rigor y con corazón al mismo tiempo, y eso te posiciona como una voz confiable tanto para audiencias técnicas como para personas que buscan claridad sin jerga.`,
+    practica:`Tus números de campo hablan con una claridad que ningún argumento supera: llevas años resolviendo problemas reales con personas reales. Eso te da una intuición de ejecución que los nuevos en tu campo todavía no pueden ofrecer. Tu historial es tu mejor presentación.`,
+  };
+
+  // ---- HABILIDADES ----
+  const areaLow=(area+" "+prof+" "+don).toLowerCase();
+  const habilidades=[];
+  if(/coach|mentor|acompaña|guia|lider/i.test(areaLow))habilidades.push("Acompañamiento transformacional");
+  if(/emocion|psico|terapi|bien|salud|sanac/i.test(areaLow))habilidades.push("Inteligencia emocional aplicada");
+  if(/venta|negocio|empren|finanza|ingreso|comerci/i.test(areaLow))habilidades.push("Estrategia comercial y ventas");
+  if(/pareja|relacion|familia|matrimonio|amor/i.test(areaLow))habilidades.push("Dinámicas de relaciones");
+  if(/fe|espiritu|pastor|minister|iglesia|dios/i.test(areaLow))habilidades.push("Liderazgo espiritual");
+  if(/comunicac|mensaje|marca|redes|content|market/i.test(areaLow))habilidades.push("Comunicación estratégica");
+  if(/inmueble|bienes raices|propiedad|casa|realtor/i.test(areaLow))habilidades.push("Negociación y cierre");
+  if(/musica|artis|creativ|diseño/i.test(areaLow))habilidades.push("Expresión y creatividad");
+  if(/mujer|femenin|identidad/i.test(areaLow))habilidades.push("Identidad y propósito femenino");
+  habilidades.push("Claridad para simplificar lo complejo");
+  habilidades.push("Conexión genuina con las personas");
+  habilidades.push("Identificación de patrones y bloqueos");
+  const habs=habilidades.slice(0,6);
+
+  // ---- FORTALEZAS ----
+  const fortalezas=[];
+  const domLabel={tacita:"Credencial de origen",empirica:"Autoridad forjada en el fuego",academica:"Formación que respalda la experiencia",practica:"Historial de resultados comprobados"};
+  const domDesc={
+    tacita:`Llevas este conocimiento desde antes de que fuera tu trabajo. Las personas que trabajan contigo sienten que no están frente a alguien que aprendió esto en un libro, sino frente a alguien que nació sabiendo caminarlo. Esa autenticidad no se puede fingir ni comprar.`,
+    empirica:`Has atravesado lo que acompañas. Cuando alguien te cuenta lo que está viviendo, no solo lo entiendes: lo reconoces. Esa combinación de credibilidad vivida y herramientas profesionales crea una confianza que los coaches sin historia personal raramente generan.`,
+    academica:`Tienes estructura para lo que sabes hacer. Mientras otros operan desde la intuición, tú puedes articular el "por qué" detrás de cada resultado. Eso te diferencia en audiencias exigentes y te permite crear programas con profundidad real.`,
+    practica:`${añosTotalesExperiencia>0?añosTotalesExperiencia+" años de":""} trabajo directo con personas reales significa que has visto patrones que los demás aún no conocen. Tu historial no es solo experiencia: es evidencia de que tu enfoque funciona en condiciones reales, no controladas.`,
+  };
+  fortalezas.push({titulo:domLabel[dom],descripcion:domDesc[dom]});
+  if(añosTotalesExperiencia>=5){
+    let desc=`${añosTotalesExperiencia} años en ${area} no es solo tiempo: es reconocimiento de patrones, errores transformados en sabiduría y claridad que solo se obtiene con la práctica sostenida. Cada año suma una capa de criterio que los recién iniciados no pueden replicar.`;
+    if(añosTotalesExperiencia>years&&añosTotalesExperiencia>=years+3)desc+=` Y aunque tu trayectoria formal sea de ${years} años, tu relación real con tu don empezó mucho antes: eso también cuenta como autoridad.`;
+    fortalezas.push({titulo:"Trayectoria que respalda cada palabra",descripcion:desc});
+  }
+  else fortalezas.push({titulo:"Perspectiva fresca con fundamento real",descripcion:`Tu visión sin los vicios del tiempo largo es una ventaja: ves lo que muchos veteranos dejaron de cuestionar. Combinada con tu experiencia práctica, esa perspectiva es exactamente lo que necesitan las personas que buscan un enfoque distinto.`});
+  if(perOpt&&perOpt.val>=350)fortalezas.push({titulo:`Impacto medible en ${perOpt.n} personas`,descripcion:`Haber acompañado a ${perOpt.n} personas no es solo un número: es el repositorio de situaciones, soluciones y aprendizajes que conforman tu criterio. Muy pocos en tu campo tienen ese volumen de práctica directa. Eso es ventaja competitiva real.`});
+  else fortalezas.push({titulo:"Especialización en un nicho con alta necesidad",descripcion:`Tu enfoque en ${area} te pone exactamente donde hay demanda insatisfecha. No estás compitiendo en un mar de generalistas: estás siendo la opción específica que una persona muy concreta necesita y aún no ha encontrado.`});
+  if(d.perspectiva?.trim().length>10){
+    const persp=sentenceCase(d.perspectiva);
+    fortalezas.push({titulo:"Perspectiva única que diferencia tu trabajo",descripcion:`${persp.slice(0,120)}${persp.length>120?'...':''} Ese enfoque no es común y es exactamente lo que convierte a un buen profesional en una voz irremplazable.`});
+  }
+  else fortalezas.push({titulo:"Integración de experiencia y propósito",descripcion:`La combinación de lo que has vivido, lo que has estudiado y lo que llevas años practicando crea un perfil que va más allá de la competencia técnica. Tu trabajo tiene una dimensión de llamado que resuena con personas que buscan más que resultados: buscan transformación real.`});
+
+  // ---- DUDA / DOLOR ----
+  const dudaRaw=d.dudaPrincipal||"";
+  const duda=sentenceCase(dudaRaw);
+  const dudaLow=dudaRaw.toLowerCase();
+
+  // ---- FRASES DE PODER PERSONAL (afirmaciones contra su duda específica) ----
+  const frasesPoder=[];
+  // 1: directly counters their stated doubt
+  if(dudaRaw.trim().length>5){
+    frasesPoder.push(`Cuando dudo si soy capaz, recuerdo que ${totalK} horas de experiencia real en ${area} no se construyen por accidente. Esa duda no es la verdad: es solo el eco de empezar.`);
+  }else{
+    frasesPoder.push(`No necesito sentirme lista/o para ser capaz. Mi historia en ${area} ya demuestra que lo soy.`);
+  }
+  // 2: rooted in their natural gift
+  if(don.length>5){
+    frasesPoder.push(`Tengo un don real para ${don.slice(0,90)}${don.length>90?'...':''}, y ese don no es casualidad: es la base de mi autoridad, aunque a veces lo dé por sentado.`);
+  }else{
+    frasesPoder.push(`Lo que para mí es natural, para otros es exactamente lo que necesitan. Eso es mi don, y es real.`);
+  }
+  // 3: rooted in concrete results/logros
+  if(d.logros?.trim().length>10){
+    frasesPoder.push(`Las personas que trabajan conmigo logran ${sentenceCase(d.logros).slice(0,100)}${d.logros.length>100?'...':''}. Eso es prueba de que sé lo que hago, incluso en los días que lo dudo.`);
+  }else{
+    frasesPoder.push(`Cada persona que ha trabajado conmigo es prueba de que mi trabajo importa, aunque yo no siempre lo vea desde adentro.`);
+  }
+  // 4: identity-based, ties area + experience
+  frasesPoder.push(`Soy ${prof} con ${añosTotalesExperiencia>0?añosTotalesExperiencia+" años":"una historia real"} detrás de mi trabajo en ${area}. No tengo que demostrarlo: ya está demostrado.`);
+
+  // ---- FRASES PARA REDES (construidas desde datos reales, sin plantillas vacías) ----
+  const frasesRedes=[];
+  // 1: stat-based hook
+  if(añosTotalesExperiencia>=10&&perOpt&&perOpt.val>=350){
+    frasesRedes.push(`${añosTotalesExperiencia} años con mi don. ${perOpt.n} personas acompañadas en ${area}. Esto no empezó cuando lo convertí en trabajo: empezó mucho antes.`);
+  }else if(perOpt&&perOpt.val>=80){
+    frasesRedes.push(`He acompañado a ${perOpt.n} personas en ${area}. Cada una me enseñó algo que ningún curso me dio.`);
+  }else if(añosTotalesExperiencia>=5){
+    frasesRedes.push(`${añosTotalesExperiencia} años caminando esto, ${years>0&&years<añosTotalesExperiencia?years+" de ellos de forma profesional":"de forma cada vez más intencional"}. La experiencia no siempre se nota en un título, pero se nota en los resultados.`);
+  }else{
+    frasesRedes.push(`En ${area} no improviso: cada cosa que comparto viene de experiencia real, no de teoría.`);
+  }
+  // 2: based on their proudest result (logroWow) if present, else logros
+  if(d.logroWow?.trim().length>10){
+    frasesRedes.push(sentenceCase(d.logroWow).replace(/^./,c=>c.toUpperCase()).slice(0,180)+(d.logroWow.length>180?'...':''));
+  }else if(d.logros?.trim().length>10){
+    frasesRedes.push(`Lo que logran las personas que trabajan conmigo: ${sentenceCase(d.logros).slice(0,140)}${d.logros.length>140?'...':''}`);
+  }else{
+    frasesRedes.push(`No mido mi trabajo en likes. Lo mido en lo que cambia en la vida de las personas que confían en mí.`);
+  }
+  // 3: addresses their core doubt publicly (vulnerable but powerful)
+  if(dudaRaw.trim().length>5){
+    frasesRedes.push(`A veces dudo si soy "suficientemente experto/a". Pero cuando reviso lo que he vivido y lo que he logrado con otros en ${area}, la respuesta siempre es la misma: sí lo soy. Solo necesitaba verlo escrito.`);
+  }else{
+    frasesRedes.push(`No necesitas más información. Necesitas a alguien que te ayude a convertir lo que ya sabes en acción. Eso es lo que hago en ${area}.`);
+  }
+
+  // ---- PERSONAS QUE TE NECESITAN ----
+  let personasQueNecesitan="";
+  if(d.clienteDescribe?.trim().length>15){
+    const desc=sentenceCase(d.clienteDescribe);
+    personasQueNecesitan=`Es ${desc.slice(0,300)}${d.clienteDescribe.length>300?'...':''}. Esta persona no necesita más contenido gratuito ni consejos genéricos: necesita a alguien que la entienda desde adentro y la acompañe con estructura, experiencia y un enfoque probado. Eso eres tú.`;
+  }
+  else
+    personasQueNecesitan=`Es alguien que ya sabe que tiene un problema en ${area}, que ha intentado resolverlo solo/a, y que siente que le falta algo que no puede nombrar todavía. No busca teoría: busca a alguien que ya caminó ese camino y pueda guiarle con honestidad y resultados reales.`;
+
+  // ---- AUDIENCIA IDEAL ----
+  let audienciaIdeal=`Tu audiencia está confirmada: las personas que describes en ${area} tienen una necesidad específica que muy pocos profesionales pueden atender con tu combinación de ${nomT[dom].toLowerCase()} y ${añosTotalesExperiencia>0?añosTotalesExperiencia+" años de relación con tu don":"experiencia práctica directa"}. `;
+  audienciaIdeal+=`Dos ventajas claras que tienes para servirles: primero, ${dom==="tacita"?"tu conocimiento viene de dentro, no solo de lo que aprendiste, y eso genera confianza inmediata":dom==="empirica"?"has vivido versiones de lo que acompañas, y esa credibilidad vivida es imposible de fabricar":dom==="academica"?"tu formación estructurada te permite articular y sistematizar lo que otros solo intuyen":"tu historial de "+years+" años y "+ses+" acompañamientos demuestra que tu enfoque produce resultados consistentes"}. `;
+  audienciaIdeal+=`Segundo, tu perspectiva única en ${area} te diferencia de quienes abordan el mismo tema de forma genérica. `;
+  audienciaIdeal+=`Área de atención: asegúrate de que las personas correctas sepan que existes, documentando y comunicando los resultados concretos de quienes han trabajado contigo.`;
+
+  // ---- POTENCIAL ----
+  const level=LEVELS.find(l=>h.total<=l.max)||LEVELS[LEVELS.length-1];
+  let potencial=`${n} tiene el perfil para convertirse en una de las referencias más sólidas en ${area} en el mundo hispanohablante, con ${totalK} horas de dominio que lo respaldan. `;
+  if(level.label==="Maestro Clase Mundial"||level.label==="Referente Reconocido")
+    potencial+=`Con este nivel de autoridad (${level.label}), el siguiente paso no es acumular más experiencia: es hacer que el mercado correcto sepa lo que ya existe. Tu capital de autoridad está listo para escalar.`;
+  else
+    potencial+=`A medida que ${years>0?"sumes más años de práctica directa y documentes los resultados de tus clientes":"inicies tu práctica directa y documentes cada resultado"}, ese potencial se convierte en reputación comprobada y alcance multiplicado.`;
+
+  // ---- DECLARACIONES DE IDENTIDAD (afirman quién es la persona, no qué hace) ----
+  const declaraciones=[];
+  if(don.length>5){
+    declaraciones.push(`Soy alguien que nació con ${don.slice(0,90)}${don.length>90?'...':''}. Eso no es un detalle: es parte de mi identidad y de mi propósito.`);
+  }else{
+    declaraciones.push(`Tengo una forma de ver y acompañar a las personas que es propia, real, y mía. Eso es identidad, no solo una habilidad.`);
+  }
+  if(añosTotalesExperiencia>=5){
+    declaraciones.push(`Llevo ${añosTotalesExperiencia} años relacionándome con esto que sé hacer. Soy alguien con historia en ${area}, no alguien que está empezando a fingirlo.`);
+  }else{
+    declaraciones.push(`Soy alguien que está construyendo una historia real en ${area}, con cada persona que acompaño y cada experiencia que vivo.`);
+  }
+  if(dudaRaw.trim().length>5){
+    declaraciones.push(`Puedo sentir la duda y aun así ser quien soy. Dudar no me quita la autoridad que ya tengo: solo significa que soy humano/a y que me importa hacerlo bien.`);
+  }else{
+    declaraciones.push(`Confío en lo que sé y en cómo lo aplico. No necesito que nadie más lo valide para que sea verdad.`);
+  }
+
+  // ---- RESPUESTA A LA DUDA ----
+  let respuestaDudas="";
+  if(dudaRaw.trim().length>5){
+    respuestaDudas+=`Duda identificada: "${duda.slice(0,120)}${duda.length>120?'...':''}". `;
+  }else{
+    respuestaDudas+=`No compartiste una duda específica, pero toda persona de alto impacto enfrenta momentos de cuestionarse a sí misma. `;
+  }
+  respuestaDudas+=`La evidencia de tu perfil contradice esta duda en tres puntos concretos. `;
+  respuestaDudas+=`Primero: ${totalK} horas de dominio y ${añosTotalesExperiencia>0?añosTotalesExperiencia+" años de relación con tu don":"experiencia directa"} demuestran que tu capacidad no está en duda; tu comunicación de esa capacidad es lo que puede necesitar ajuste. `;
+  if(perOpt&&perOpt.val>=80)respuestaDudas+=`Segundo: haber acompañado a ${perOpt.n} personas es evidencia de que tu trabajo genera valor real y las personas lo buscan. `;
+  else respuestaDudas+=`Segundo: tu formación y perspectiva única en ${area} te posicionan exactamente donde hay demanda insatisfecha de calidad. `;
+  respuestaDudas+=`Tercero: ${dom==="empirica"?"haber atravesado lo que acompañas te da una credibilidad que ningún título puede otorgar y que las personas perciben desde la primera conversación":dom==="tacita"?"tu don natural en esta área es el tipo de habilidad que genera confianza inmediata, antes incluso de mostrar credenciales":dom==="academica"?"tu inversión en formación estructurada te da la capacidad de articular y sistematizar lo que otros solo intuyen":"tu historial de resultados prácticos es el argumento más sólido que existe: los resultados no mienten"}. `;
+  respuestaDudas+=`Conclusión: tienes la autoridad. Lo que falta no es más preparación: es que las personas correctas sepan que existes.`;
+
+  // ---- PROMESA BIBLICA (basada en la duda) ----
+  let promesaBiblica={verso:"",referencia:""};
+  if(/vend|client|mercado|valer|suficiente|nadie|capaz|dud/i.test(dudaLow))
+    promesaBiblica={verso:"No temas, porque yo estoy contigo; no desmayes, porque yo soy tu Dios que te esfuerzo; siempre te ayudaré, siempre te sustentaré con la diestra de mi justicia.",referencia:"Isaías 41:10"};
+  else if(/llamado|propósito|para qué|sentido/i.test(dudaLow))
+    promesaBiblica={verso:"Porque yo sé los pensamientos que tengo acerca de vosotros, dice Jehová, pensamientos de paz y no de mal, para daros el futuro que esperáis.",referencia:"Jeremías 29:11"};
+  else if(/título|preparad|estudi|certif|mejor que yo/i.test(dudaLow))
+    promesaBiblica={verso:"Todo lo puedo en Cristo que me fortalece.",referencia:"Filipenses 4:13"};
+  else if(/miedo|temor|ansiedad/i.test(dudaLow))
+    promesaBiblica={verso:"No os ha dado Dios espíritu de cobardía, sino de poder, de amor y de dominio propio.",referencia:"2 Timoteo 1:7"};
+  else if(/solo|abandon|nadie me/i.test(dudaLow))
+    promesaBiblica={verso:"Esforzaos y cobrad ánimo; no temáis, ni tengáis miedo de ellos, porque Jehová tu Dios es el que va contigo; no te dejará, ni te desamparará.",referencia:"Deuteronomio 31:6"};
+  else if(/fracas|equivoc|error/i.test(dudaLow))
+    promesaBiblica={verso:"El justo caerá siete veces y volverá a levantarse.",referencia:"Proverbios 24:16"};
+  else
+    promesaBiblica={verso:"Confía en el Señor con todo tu corazón y no te apoyes en tu propia comprensión; reconócelo en todos tus caminos, y él allanará tus sendas.",referencia:"Proverbios 3:5-6"};
+
+  return{tagline,revelacion,tipoDominante,explicacionTipo:explicTipo[dom],habilidades:habs,fortalezas:fortalezas.slice(0,4),frasesPoder,frasesRedes,personasQueNecesitan,audienciaIdeal,potencial,declaraciones,respuestaDudas,promesaBiblica};
+}
+
+function canNext(){
+  const d=state.d;
+  if(state.step===1)return d.nombre&&d.profesion&&d.area&&d.edadActual;
+  if(state.step===2)return d.donPropio&&d.edadDon&&d.edadEmpezó&&d.crisis!==null&&d.proceso!==null;
+  if(state.step===3)return d.cursos!==null&&d.audio!==null;
+  if(state.step===4)return d.añosTrabajando&&d.personas!==null&&d.alcance!==null;
+  if(state.step===5)return d.logros&&d.perspectiva;
+  return true;
+}
+
+function donutSVG(data,total){
+  if(!total)return'<svg width="190" height="190"></svg>';
+  const SZ=190,cx=95,cy=95,R=75,iR=48,GAP=0.025;
+  let ang=-Math.PI/2;
+  const segs=data.filter(d=>d.val>0).map(dd=>{
+    const pct=dd.val/total,a=pct*2*Math.PI-GAP,seg={...dd,ang,a,pct};ang+=pct*2*Math.PI;return seg;
+  });
+  function arc(sa,ea){
+    const s={x:cx+R*Math.cos(sa),y:cy+R*Math.sin(sa)},e={x:cx+R*Math.cos(ea),y:cy+R*Math.sin(ea)};
+    const si={x:cx+iR*Math.cos(sa),y:cy+iR*Math.sin(sa)},ei={x:cx+iR*Math.cos(ea),y:cy+iR*Math.sin(ea)};
+    const lg=ea-sa>Math.PI?1:0;
+    return`M${s.x} ${s.y} A${R} ${R} 0 ${lg} 1 ${e.x} ${e.y} L${ei.x} ${ei.y} A${iR} ${iR} 0 ${lg} 0 ${si.x} ${si.y}Z`;
+  }
+  const paths=segs.map(s=>`<path d="${arc(s.ang,s.ang+s.a)}" fill="${s.color}" opacity="0.93"/>`).join('');
+  const totalLabel=total>=1000?(total/1000).toFixed(1)+"K":total;
+  return`<svg width="${SZ}" height="${SZ}">${paths}<circle cx="${cx}" cy="${cy}" r="${iR-2}" fill="white"/><text x="${cx}" y="${cy-8}" text-anchor="middle" font-size="10" fill="#6B7280" font-weight="700">TOTAL</text><text x="${cx}" y="${cy+10}" text-anchor="middle" font-size="17" fill="#1E293B" font-weight="900">${totalLabel}</text><text x="${cx}" y="${cy+25}" text-anchor="middle" font-size="9" fill="#9CA3AF">horas</text></svg>`;
+}
+
+function tip(t){return`<span class="tip-wrap"><span class="tip-icon">?</span><div class="tip-box">${t}</div></span>`;}
+function secLabel(t,c='#1E293B'){return`<div class="sec-label" style="color:${c};">${t}</div>`;}
+function banner(c,title,desc){return`<div class="banner" style="background:${c.light};border-color:${c.bg};"><div class="banner-title" style="color:${c.text};">${title}</div><div class="banner-desc">${desc}</div></div>`;}
+function pills(opts,field,selClass){
+  return`<div class="pills">${opts.map(o=>`<button class="pill ${state.d[field]===o.val?(selClass||'selected'):''}" data-field="${field}" data-val="${o.val}">${o.label}</button>`).join('')}</div>`;
+}
+function checkBtn(field,label){
+  const on=state.d[field];
+  return`<button class="check-btn ${on?'on':''}" data-toggle="${field}"><div class="check-box ${on?'on':''}">${on?'<svg width="12" height="12" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="2" fill="none"/></svg>':''}</div><span class="check-label ${on?'on':''}">${label}</span></button>`;
+}
+
+function step1HTML(){
+  const d=state.d;
+  return`
+    <div class="fg"><label>Tu nombre</label><input data-field="nombre" value="${d.nombre}" placeholder="Ej: Valentina, Marcos, Sandra..."/></div>
+    <div class="fg"><label>¿Cuál es tu rol o título profesional?${tip("Cómo te presentas en tu área. Puede ser formal o no.")}</label>
+      <input data-field="profesion" value="${d.profesion}" placeholder="Ej: Mentora de parejas, Coach de negocios, Realtor, Terapeuta familiar, Pastora..."/></div>
+    <div class="fg"><label>¿Qué cambia en la vida de las personas después de trabajar contigo?${tip("Describe la transformación concreta que produces, no el método que usas.")}</label>
+      <input data-field="area" value="${d.area}" placeholder="Ej: sanan sus relaciones de pareja, recuperan claridad emocional, logran independencia financiera..."/></div>
+    <div class="fg"><label>¿Cuántos años tienes actualmente?</label>
+      <input type="number" data-field="edadActual" value="${d.edadActual}" placeholder="Ej: 38" min="10" max="99"/></div>
+  `;
+}
+function step2HTML(){
+  const d=state.d;
+  return`
+    ${banner(C.tacita,"Autoridad de Origen","Tu don natural y los años que llevas caminando este camino aunque no fuera tu trabajo. Esta es la autoridad más difícil de imitar.")}
+    <div class="fg"><label>¿Cuál es tu don o habilidad natural más poderosa?${tip("Puede ser cualquier habilidad que tengas de forma natural: conectar con personas, liderar, comunicar con claridad, sanar con tu presencia, ver soluciones, discernir situaciones...")}</label>
+      <textarea data-field="donPropio" rows="3" placeholder="Descríbelo con tus propias palabras. Ej: Tengo la capacidad de hacer que las personas se sientan vistas y escuchadas en minutos...">${d.donPropio}</textarea></div>
+    <div class="fg"><label>¿A qué edad notaste que podías hacer esto?${tip("El momento en que notaste que tenías algo especial, aunque no lo llamaras don.")}</label>
+      <input type="number" data-field="edadDon" value="${d.edadDon}" placeholder="Ej: 14" min="0" max="80"/></div>
+    <div class="fg"><label>¿A qué edad empezaste a trabajar en algo relacionado a tu don, aunque no fuera de manera formal?${tip("El momento en que comenzaste a usar este don en algo parecido a un trabajo o servicio, aunque no te pagaran o no fuera tu profesión todavía.")}</label>
+      <input type="number" data-field="edadEmpezó" value="${d.edadEmpezó}" placeholder="Ej: 18" min="0" max="80"/></div>
+    ${banner(C.empirica,"Autoridad Forjada","Lo que aprendiste atravesando el fuego. Tus temporadas difíciles son credenciales que ningún diploma otorga.")}
+    <div class="fg"><label>¿Cuántas crisis o momentos de quiebre profundo has vivido?${tip("Duelos, separaciones, quiebres de fe, enfermedades, pérdidas económicas, crisis de identidad, fracasos. Momentos que te transformaron por dentro.")}</label>
+      ${pills(OPT.crisis,'crisis','sel-red')}</div>
+    <div class="fg"><label>¿Cuánto tiempo llevas invirtiendo activamente en tu crecimiento personal o profesional?${tip("Terapia, consejería, mentorías, coaching, grupos de crecimiento, retiros, mastermind, disciplinas espirituales...")}</label>
+      ${pills(OPT.proceso,'proceso','sel-red')}</div>
+    <div class="fg"><label>¿Cuántas mentorías o procesos de acompañamiento has recibido?${tip("Mentores formales, mastermind, acompañamiento espiritual, coach personal.")}</label>
+      <input type="number" data-field="mentoriasNum" value="${d.mentoriasNum}" placeholder="Ej: 3" min="0"/></div>
+  `;
+}
+function step3HTML(){
+  const d=state.d;
+  return`
+    ${banner(C.academica,"Autoridad Académica","Tu inversión intelectual: formal e informal. Cada certificación y material que has creado es evidencia de que tomaste en serio tu área.")}
+    <div class="fg"><label>Carreras universitarias o estudios formales <span style="font-weight:400;color:#64748B">(Separa con coma si tienes varios)</span></label>
+      <input data-field="carreras" value="${d.carreras}" placeholder="Ej: Psicología (incompleta), Teología, Administración de empresas..."/></div>
+    <div class="fg"><label>Diplomados, especializaciones o certificaciones${tip("Separa cada uno con coma para que aparezcan todos en tu tablero.")}</label>
+      <input data-field="diplomados" value="${d.diplomados}" placeholder="Ej: Licencia de bienes raíces, Certificación ICF, Diplomado en Teología..."/></div>
+    <div class="fg"><label>¿Cuántos cursos o programas de formación has tomado?${tip("Cursos online, presenciales, programas de capacitación.")}</label>
+      ${pills(OPT.cursos,'cursos','sel-green')}</div>
+    <div class="fg"><label>¿Cuántos libros de tu área has leído aproximadamente?</label>
+      <input type="number" data-field="librosLeidos" value="${d.librosLeidos}" placeholder="Ej: 30" min="0"/></div>
+    <div class="fg"><label>¿Has escrito libros, guías, ebooks o programas documentados?${tip("Empieza con el número para que aparezca en tu tablero. Ej: '3 libros publicados, 2 guías digitales'")}</label>
+      <input data-field="librosEscritos" value="${d.librosEscritos}" placeholder="Ej: 5 libros publicados, 2 guías digitales, programa de 8 semanas documentado..."/></div>
+    <div class="fg"><label>¿Has creado material educativo? <span style="font-weight:400;color:#64748B">Artículos, newsletters, módulos de curso</span></label>
+      <input data-field="materialCreado" value="${d.materialCreado}" placeholder="Ej: newsletter semanal por 2 años, 5 módulos de curso, 80 artículos..."/></div>
+    <div class="fg"><label>¿Con qué frecuencia consumes podcasts, audiolibros o formación en audio?</label>
+      ${pills(OPT.audio,'audio','sel-green')}</div>
+  `;
+}
+function step4HTML(){
+  const d=state.d;
+  return`
+    ${banner(C.practica,"Autoridad en Campo","Tu campo real de acción. Donde el conocimiento se convirtió en resultados medibles.")}
+    <div class="fg"><label>¿Cuántos años llevas trabajando con personas en tu área?${tip("Suma todo: pagado, voluntario, ministerial, comunitario.")}</label>
+      <input type="number" data-field="añosTrabajando" value="${d.añosTrabajando}" placeholder="Ej: 7" min="0"/></div>
+    <div class="fg"><label>¿Cuántas interacciones de trabajo has tenido en total? <span style="font-weight:400;color:#64748B">(aproximado)</span>${tip("Sesiones, consultorías, cierres, transacciones, acompañamientos, atenciones, servicios.")}</label>
+      <input type="number" data-field="sesiones" value="${d.sesiones}" placeholder="Aproximado. Ej: 1500 (cierres, sesiones, atenciones, consultas...)" min="0"/></div>
+    <div class="fg"><label>¿A cuántas personas distintas has servido a lo largo de tu carrera?</label>
+      ${pills(OPT.personas,'personas','sel-amber')}</div>
+    <div class="fg"><label>¿Cuántos eventos, presentaciones o actividades en grupo has liderado? <span style="font-weight:400;color:#64748B">Talleres, conferencias, webinars, open houses, retiros, capacitaciones</span></label>
+      ${pills(OPT.eventos,'eventos','sel-amber')}</div>
+    <div class="fg"><label>¿Por dónde compartes contenido de valor? <span style="font-weight:400;color:#64748B">Puedes seleccionar varias opciones</span></label>
+      <p style="font-size:12px;color:#94A3B8;margin:0 0 8px;">Para redes sociales elige el rango de tiempo que aplica. Podcast y video son adicionales.</p>
+      ${checkBtn('tieneRedes','Redes sociales activas (menos de 1 año)')}
+      ${checkBtn('tieneRedes1a3','Redes sociales activas entre 1 y 3 años')}
+      ${checkBtn('tieneRedesMas3','Redes sociales activas por más de 3 años')}
+      ${checkBtn('tienePodcast','Tengo podcast propio')}
+      ${checkBtn('tieneYoutube','Tengo canal de video (YouTube)')}
+      ${checkBtn('tieneTikTok','Tengo canal de TikTok activo')}
+    </div>
+    <div class="fg"><label>¿Cuál es el alcance geográfico de tu trabajo?</label>
+      ${pills(OPT.alcance,'alcance','sel-amber')}</div>
+  `;
+}
+function step5HTML(){
+  const d=state.d;
+  return`
+    <div style="background:linear-gradient(135deg,#1E1B4B,#312E81);border-radius:16px;padding:18px;color:#fff;margin-bottom:18px;">
+      <div style="font-size:22px;margin-bottom:6px;">💎</div>
+      <h3 style="margin:0;font-size:16px;">Tu Conocimiento en Acción</h3>
+      <p style="margin:6px 0 0;opacity:.8;font-size:13px;">Esta sección revela el impacto real de tu trabajo. Sé específico/a: son los datos que más sorprenden.</p>
+    </div>
+    <div class="fg"><label>¿Qué logran concretamente las personas que trabajan contigo?</label>
+      <textarea data-field="logros" rows="3" placeholder="Ej: cierran su primera propiedad en menos de 60 días, duplican sus ingresos, recuperan claridad para decidir, sanan relaciones...">${d.logros}</textarea></div>
+    <div class="fg"><label>¿Tienes un logro o resultado del que te sientas muy orgulloso/a?</label>
+      <textarea data-field="logroWow" rows="3" placeholder="Un caso, un momento, un impacto concreto que te marcó...">${d.logroWow}</textarea></div>
+    <div class="fg"><label>¿A quién ayudas mejor?</label>
+      <textarea data-field="clienteDescribe" rows="3" placeholder="Describe a esa persona: situación, qué necesita, qué le duele...">${d.clienteDescribe}</textarea></div>
+    <div class="fg"><label>¿Qué perspectiva o enfoque único tienes que pocas personas en tu campo tienen?</label>
+      <textarea data-field="perspectiva" rows="3" placeholder="Combino la fe con la psicología. Veo los patrones detrás del comportamiento...">${d.perspectiva}</textarea></div>
+    <div class="fg"><label>¿Qué es lo que te hace dudar de ti, o te hace pensarlo dos veces antes de presentarte como experto/a en lo que haces?${tip("Esa duda interna, ese 'pero qué tal si...' que aparece cuando alguien te llama experto/a. Sé honesto/a: esta respuesta nos ayuda a construir afirmaciones específicas para ti.")}</label>
+      <textarea data-field="dudaPrincipal" rows="3" placeholder="Ej: pienso que me falta experiencia, que otros saben más, que no he ayudado a suficientes personas, que me falta un título...">${d.dudaPrincipal}</textarea></div>
+  `;
+}
+
+function resultsHTML(){
+  const d=state.d,h=state.result,ai=state.ai;
+  const level=LEVELS.find(l=>h.total<=l.max)||LEVELS[LEVELS.length-1];
+  const types=["tacita","empirica","academica","practica"];
+  const dom=types.reduce((a,b)=>h[a]>h[b]?a:b);
+  const domC=C[dom];
+  const stats=buildStats(d,h);
+  const infoText=buildInfo(d,h,ai?.tagline);
+  const donutData=[
+    {label:"De Origen",val:h.tacita,color:C.tacita.bg},
+    {label:"Forjada",val:h.empirica,color:C.empirica.bg},
+    {label:"Académica",val:h.academica,color:C.academica.bg},
+    {label:"En Campo",val:h.practica,color:C.practica.bg},
+  ].filter(x=>x.val>0);
+
+  let html=`
+  <div class="hero">
+    <div class="hero-eyebrow">AUTORIDAD EN ${(d.area||d.profesion).toUpperCase()}</div>
+    <div class="hero-sub">${d.nombre} · ${d.profesion}</div>
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      ${donutSVG(donutData,h.total)}
+      <div class="donut-legend">
+        ${donutData.map(dd=>`<div class="legend-item"><div class="legend-dot" style="background:${dd.color};"></div><div><div class="legend-name">${dd.label}</div><div><span class="legend-val">${dd.val.toLocaleString()}</span> <span class="legend-pct">hrs (${Math.round(dd.val/h.total*100)}%)</span></div></div></div>`).join('')}
+      </div>
+    </div>
+    <div class="level-badge"><span style="font-size:22px;">${level.emoji}</span><div><div class="level-badge-label">NIVEL DE DOMINIO</div><div class="level-badge-name">${level.label}</div></div></div>
+    ${h.total>=10000?`<div class="gladwell">Superaste las 10.000 horas: el umbral de maestría de Malcolm Gladwell y Anders Ericsson</div>`:''}
+  </div>
+
+  <div class="result-card" style="margin-bottom:18px;">
+    ${secLabel('ESCALA DE DOMINIO')}
+    <div style="background:#F8FAFC;border-radius:12px;padding:14px;margin-bottom:14px;border-left:3px solid #7C3AED;">
+      <div style="font-size:10px;font-weight:700;color:#5B21B6;letter-spacing:1.5px;margin-bottom:5px;">BASE TEÓRICA</div>
+      <p style="margin:0;font-size:12px;color:#374151;line-height:1.8;">Anders Ericsson demostró que la maestría no es un talento innato: es el resultado de horas acumuladas con intención. Malcolm Gladwell popularizó el umbral de las 10.000 horas. POWER MAP™ calcula tu autoridad sumando cuatro tipos: Origen (lo que traes desde siempre), Forjada (lo que atravesaste), Académica (lo que estudiaste) y en Campo (lo que ejerciste con personas reales).</p>
+    </div>
+    ${LEVELS.map(lv=>{
+      const cur=level.label===lv.label;
+      return`<div class="level-row ${cur?'cur':'other'}">
+        <span style="font-size:15px;flex-shrink:0;">${lv.emoji}</span>
+        <div class="level-info">
+          <div class="level-name-row"><span class="level-name" style="color:${cur?'#5B21B6':'#1E293B'};">${lv.label}</span><span class="level-hrs">${lv.max===Infinity?"10.000+ hrs":"≤"+lv.max.toLocaleString()+" hrs"}</span></div>
+          <div class="level-desc" style="color:${cur?'#5B21B6':'#64748B'};">${lv.desc}</div>
+          <div class="level-neuro">${lv.neuro}</div>
+        </div>
+        ${cur?'<span class="you-badge">TÚ</span>':''}
+      </div>`;
+    }).join('')}
+  </div>
+
+  ${stats.length>0?`
+  <div style="background:linear-gradient(135deg,#0F172A,#1E1B4B);border-radius:20px;padding:22px;margin-bottom:18px;">
+    ${secLabel('TU TABLERO DE AUTORIDAD','#A5B4FC')}
+    <p style="margin:0 0 14px;color:#94A3B8;font-size:12px;">Para tu LinkedIn, bio y presentaciones profesionales</p>
+    <div class="stats-grid">
+      ${stats.map(s=>`<div class="stat-card" style="background:${s.c.bg}25;border:1px solid ${s.c.bg}60;"><div class="stat-icon">${s.icon}</div><div class="stat-num">${s.num}</div><div class="stat-lbl" style="color:${s.c.pill};">${s.label}</div></div>`).join('')}
+    </div>
+  </div>`:''}
+  `;
+
+  if(state.loading){
+    html+=`<div class="loading-box"><span class="load-icon">✦</span><div class="load-msg">Construyendo tu análisis...</div><div class="load-sub">Solo toma unos segundos</div><div class="load-bar-wrap"><div class="load-bar-fill"></div></div></div>`;
+  }
+
+  if(ai){
+    html+=`
+    <div style="background:linear-gradient(135deg,#FDF4FF,#F0F9FF);border-radius:20px;padding:24px;text-align:center;border:2px solid #E9D5FF;margin-bottom:18px;">
+      ${secLabel('TU FRASE COMERCIAL')}
+      <h2 style="margin:0;font-size:19px;color:#1E1B4B;font-weight:800;line-height:1.5;">"${ai.tagline||''}"</h2>
+    </div>
+    <div class="result-dark">
+      ${secLabel('LA REVELACIÓN DE TU POWER MAP™','#A5B4FC')}
+      <p style="line-height:1.9;">${ai.revelacion||''}</p>
+    </div>
+    <div style="background:${domC.light};border-radius:20px;padding:22px;border:2px solid ${domC.pill};margin-bottom:18px;">
+      <div style="display:inline-block;background:${domC.bg};color:#fff;border-radius:999px;padding:3px 13px;font-size:11px;font-weight:700;margin-bottom:10px;">TU TIPO DOMINANTE</div>
+      <h3 style="margin:0 0 8px;color:${domC.text};font-size:18px;">${ai.tipoDominante||''}</h3>
+      <p style="margin:0;color:#1E293B;line-height:1.8;font-size:14px;">${ai.explicacionTipo||''}</p>
+    </div>
+    ${ai.habilidades?.length?`<div class="result-card">${secLabel('TUS HABILIDADES DESTACADAS')}<div>${(ai.habilidades||[]).map((hh,i)=>{const cs=[C.tacita,C.empirica,C.academica,C.practica];const c=cs[i%4];return`<span class="tag-pill" style="background:${c.light};color:${c.text};border:1.5px solid ${c.pill};">${hh}</span>`;}).join('')}</div></div>`:''}
+    <div class="result-card">
+      ${secLabel('TUS 4 FORTALEZAS ÚNICAS')}
+      ${(ai.fortalezas||[]).map((f,i)=>{
+        const c=[C.tacita,C.empirica,C.academica,C.practica][i]||C.tacita;
+        return`<div class="strength-item" style="background:${c.light};border:1px solid ${c.pill};"><div class="strength-num" style="background:${c.bg};">${i+1}</div><div><div style="font-weight:700;color:${c.text};margin-bottom:3px;font-size:14px;">${f.titulo}</div><div style="color:#1E293B;font-size:13px;line-height:1.7;">${f.descripcion}</div></div></div>`;
+      }).join('')}
+    </div>
+    <div class="result-dark">
+      ${secLabel('TUS FRASES DE PODER PERSONAL','#A5B4FC')}
+      <p style="font-size:12px;color:#94A3B8;margin-bottom:12px;">Decláralas en voz alta. Son afirmaciones de quién eres y para qué fuiste creado/a.</p>
+      ${(ai.frasesPoder||[]).map(f=>`<div class="phrase-item">"${f}"</div>`).join('')}
+    </div>
+    <div style="background:linear-gradient(135deg,#4C1D95,#1E1B4B);border-radius:20px;padding:22px;margin-bottom:18px;">
+      ${secLabel('FRASES PARA PUBLICAR EN TUS REDES','#C4B5FD')}
+      <p style="margin:0 0 12px;color:#A5B4FC;font-size:12px;">Cópialas directamente a tu feed, historia o LinkedIn</p>
+      ${(ai.frasesRedes||[]).map(f=>`<div class="phrase-redes">"${f}"</div>`).join('')}
+    </div>
+    ${ai.personasQueNecesitan?`<div style="background:#F0FDF4;border-radius:20px;padding:22px;border:2px solid #BBF7D0;margin-bottom:18px;">${secLabel('LAS PERSONAS QUE TE NECESITAN','#065F46')}<p style="margin:0;color:#1E293B;line-height:1.9;font-size:14px;">${ai.personasQueNecesitan}</p></div>`:''}
+    ${ai.audienciaIdeal?`<div style="background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border-radius:20px;padding:22px;border:2px solid #FDE68A;margin-bottom:18px;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;"><span style="background:#059669;color:#fff;font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;letter-spacing:1px;">✓ CONFIRMADA</span>${secLabel('TU AUDIENCIA IDEAL','#D97706')}</div><p style="margin:0;color:#1E293B;line-height:1.8;font-size:14px;">${ai.audienciaIdeal}</p></div>`:''}
+    <div style="background:linear-gradient(135deg,#EDE9FE,#E0E7FF);border-radius:20px;padding:22px;border:2px solid #C4B5FD;margin-bottom:18px;">
+      ${secLabel('TU POTENCIAL DE IMPACTO','#5B21B6')}
+      <p style="margin:0;color:#1E293B;line-height:1.8;font-size:14px;">${ai.potencial||''}</p>
+    </div>
+    ${ai.respuestaDudas?`<div style="background:linear-gradient(135deg,#0F2027,#203A43,#1E2A3A);border-radius:20px;padding:22px;margin-bottom:18px;border:1px solid rgba(196,181,253,0.25);">${secLabel('NOTA IMPORTANTE SOBRE TU AUTORIDAD','#C4B5FD')}<p style="margin:0;font-size:14px;line-height:1.9;color:#F1F5F9;">${ai.respuestaDudas}</p></div>`:''}
+    ${(ai.declaraciones)?.length?`<div style="background:linear-gradient(135deg,#1a1f3a,#1E2A3A);border-radius:20px;padding:22px;margin-bottom:18px;border:1px solid rgba(253,230,138,0.3);">${secLabel('DECLARACIONES DE IDENTIDAD','#FDE68A')}<p style="margin:0 0 12px;color:#94A3B8;font-size:12px;">Di estas declaraciones en voz alta. Están escritas desde quien eres, no desde quien quieres ser.</p>${(ai.declaraciones||[]).map(a=>`<div class="affirmation-item">"${a}"</div>`).join('')}<div style="background:rgba(253,230,138,.08);border-radius:10px;padding:12px 14px;margin-top:12px;border-left:3px solid #FDE68A;"><p style="margin:0;font-size:12px;color:#FDE68A;line-height:1.8;font-style:italic;">Te recomiendo que repitas y escribas estas frases al menos 3 veces a la semana para fortalecer tu confianza e interiorizar la autoridad que ya tienes.</p></div></div>`:''}
+    <div class="result-card" style="border:2px solid #E0E7FF;margin-bottom:18px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+        <div>${secLabel('INFORMACIÓN DE AUTORIDAD PARA TUS PERFILES')}<div style="font-size:12px;color:#64748B;margin-top:-4px;">Lista para copiar en LinkedIn, Instagram bio o presentaciones</div></div>
+        <button class="copy-btn" id="copyBtn" onclick="copyInfo()">Copiar</button>
+      </div>
+      <div class="info-box" id="infoText">${infoText}</div>
+      <p style="margin:10px 0 0;color:#7C3AED;font-size:12px;font-weight:600;">Estos datos generan confianza antes de la primera conversación.</p>
+    </div>
+    ${ai.promesaBiblica?.verso?`<div class="bible-card"><div style="font-size:11px;color:#A5B4FC;font-weight:700;letter-spacing:2px;margin-bottom:14px;">✝ PROMESA BÍBLICA PARA TU LLAMADO</div><div class="bible-verse">"${ai.promesaBiblica.verso}"</div><div class="bible-ref">${ai.promesaBiblica.referencia}</div></div>`:''}
+    `;
+  }
+
+  html+=`<div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 14px;margin-bottom:16px;text-align:center;"><p style="color:rgba(255,255,255,.4);font-size:11px;line-height:1.7;margin:0;"><strong style="color:rgba(255,255,255,.6);font-size:10px;letter-spacing:1.5px;">AVISO</strong><br/>Esta calculadora es una herramienta de reflexión y autoconocimiento creada por Lala Herrera. Está basada en la información proporcionada y no constituye una certificación laboral, académica ni profesional. Los resultados son orientativos y tienen como propósito ayudarte a reconocer y articular el valor de tu experiencia acumulada.</p></div>
+  <button class="reset-btn" onclick="resetApp()">Calcular de nuevo</button>
+  <div style="text-align:center;padding:20px 0 8px;border-top:1px solid rgba(255,255,255,.08);margin-top:4px;">
+    <div style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#7C3AED,#4F46E5);border-radius:10px;padding:6px 14px;margin-bottom:10px;"><span style="color:#fff;font-size:13px;font-weight:900;">✦</span><span style="color:#fff;font-size:11px;font-weight:800;letter-spacing:1.5px;">POWER ACADEMY</span></div>
+    <p style="color:rgba(255,255,255,.5);font-size:11px;margin-top:6px;line-height:1.8;">Una herramienta de <strong style="color:#C4B5FD;">Lala Herrera</strong><br/>Se1Mensaje Agency · @se1mensaje · @lalaherreratm</p>
+    <p style="color:rgba(255,255,255,.4);font-size:11px;margin-top:8px;font-weight:500;">© ${new Date().getFullYear()} Lala Herrera · Se1Mensaje Agency · Todos los derechos reservados</p>
+  </div>`;
+  return html;
+}
+
+function render(){
+  const root=document.getElementById('root');
+  const steps=["Identidad","Origen","Formación","Experiencia","Impacto"];
+  if(state.step<=5){
+    const progress=steps.map((s,i)=>`<div class="prog-item"><div class="prog-bar ${i+1<=state.step?'active':'inactive'}"></div><span class="prog-label ${i+1<=state.step?'active':'inactive'}">${s}</span></div>`).join('');
+    const stepTitles=["","¿Quién eres?","Tu autoridad vivida","Tu formación","Tu experiencia real","Tu conocimiento en acción"];
+    const stepSubs=["","Define quién eres y el área donde generas impacto","Tu don natural y las temporadas que te formaron","Tu inversión intelectual vale más de lo que imaginas","El campo real es donde nace la maestría","Lo que no aparece en tu CV pero mueve vidas"];
+    const forms=[null,step1HTML,step2HTML,step3HTML,step4HTML,step5HTML];
+    const formHTML=forms[state.step]();
+    const ok=canNext();
+    root.innerHTML=`
+      <div class="progress">${progress}</div>
+      <div class="card">
+        <div class="step-label">PASO ${state.step} DE 5</div>
+        <div class="step-title">${stepTitles[state.step]}</div>
+        <div class="step-sub">${stepSubs[state.step]}</div>
+        ${formHTML}
+        <div class="btn-row">
+          ${state.step>1?'<button class="btn-back" onclick="prevStep()">Atrás</button>':''}
+          ${state.step<5?`<button class="btn-primary" ${!ok?'disabled':''} onclick="nextStep()">Continuar</button>`:`<button class="btn-primary" ${!ok||state.loading?'disabled':''} onclick="doCalc()">${state.loading?'Calculando...':'Revelar mi autoridad'}</button>`}
+        </div>
+      </div>`;
+  }else{
+    root.innerHTML=resultsHTML();
+  }
+  attachEvents();
+}
+
+function attachEvents(){
+  document.querySelectorAll('input[data-field],textarea[data-field]').forEach(el=>{
+    el.addEventListener('input',e=>{
+      state.d[e.target.dataset.field]=e.target.value;
+      const btn=document.querySelector('.btn-primary');
+      if(btn)btn.disabled=!canNext();
+    });
+  });
+  document.querySelectorAll('.pill[data-field]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      state.d[btn.dataset.field]=Number(btn.dataset.val);render();
+    });
+  });
+  document.querySelectorAll('.check-btn[data-toggle]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const field=btn.dataset.toggle;
+      if(field==='tieneRedes'||field==='tieneRedes1a3'||field==='tieneRedesMas3'){
+        state.d.tieneRedes=false;state.d.tieneRedes1a3=false;state.d.tieneRedesMas3=false;
+      }
+      state.d[field]=!state.d[field];
+      if(field==='tieneRedes'||field==='tieneRedes1a3'||field==='tieneRedesMas3')state.d[field]=true;
+      render();
+    });
+  });
+}
+
+function nextStep(){if(canNext()){state.step++;render();window.scrollTo(0,0);}}
+function prevStep(){if(state.step>1){state.step--;render();window.scrollTo(0,0);}}
+
+async function doCalc(){
+  state.loading=true;state.error="";state.ai=null;
+  state.result=calcH(state.d);
+  state.step=6;
+  render();
+  await new Promise(r=>setTimeout(r,1800));
+  state.ai=generateAnalysis(state.d,state.result);
+  state.loading=false;
+  render();
+}
+
+function resetApp(){
+  state={step:1,d:{...INIT},result:null,ai:null,loading:false,error:"",copied:false};
+  render();window.scrollTo(0,0);
+}
+
+function copyInfo(){
+  const text=document.getElementById('infoText')?.innerText||'';
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById('copyBtn');
+    if(btn){btn.textContent='¡Copiado!';btn.classList.add('ok');setTimeout(()=>{btn.textContent='Copiar';btn.classList.remove('ok');},2500);}
+  });
+}
+
+render();
+</script>
+</body>
+</html>
