@@ -385,26 +385,30 @@ function generateAnalysis(d,h){
 
   // ---- FRASES DE PODER PERSONAL (afirmaciones contra su duda específica) ----
   const frasesPoder=[];
-  // 1: directly counters their stated doubt
+  // 1: directly counters their stated doubt, using total hours as evidence
   if(dudaRaw.trim().length>5){
-    frasesPoder.push(`Cuando dudo si soy capaz, recuerdo que ${totalK} horas de experiencia real en ${area} no se construyen por accidente. Esa duda no es la verdad: es solo el eco de empezar.`);
+    frasesPoder.push(`Cuando dudo si soy capaz, recuerdo que llevo ${totalK} horas de experiencia real acumulada. Esa duda no es la verdad: es solo el eco de empezar.`);
   }else{
-    frasesPoder.push(`No necesito sentirme lista/o para ser capaz. Mi historia en ${area} ya demuestra que lo soy.`);
+    frasesPoder.push(`No necesito sentirme listo/a para ser capaz. Mi historia ya demuestra que lo soy.`);
   }
-  // 2: rooted in their natural gift
+  // 2: rooted in their natural gift, used as a quoted aside (always grammatically safe)
   if(don.length>5){
-    frasesPoder.push(`Tengo un don real para ${don.slice(0,90)}${don.length>90?'...':''}, y ese don no es casualidad: es la base de mi autoridad, aunque a veces lo dé por sentado.`);
+    frasesPoder.push(`Tengo un don real, algo que para mí es natural: ${don.slice(0,90)}${don.length>90?'...':''}. Ese don no es casualidad: es la base de mi autoridad, aunque a veces lo dé por sentado.`);
   }else{
     frasesPoder.push(`Lo que para mí es natural, para otros es exactamente lo que necesitan. Eso es mi don, y es real.`);
   }
-  // 3: rooted in concrete results/logros
+  // 3: rooted in concrete results/logros, used as a quoted aside
   if(d.logros?.trim().length>10){
-    frasesPoder.push(`Las personas que trabajan conmigo logran ${sentenceCase(d.logros).slice(0,100)}${d.logros.length>100?'...':''}. Eso es prueba de que sé lo que hago, incluso en los días que lo dudo.`);
+    frasesPoder.push(`Esto es lo que logran las personas que trabajan conmigo: "${sentenceCase(d.logros).slice(0,100)}${d.logros.length>100?'...':''}". Eso es prueba de que sé lo que hago, incluso en los días que lo dudo.`);
   }else{
     frasesPoder.push(`Cada persona que ha trabajado conmigo es prueba de que mi trabajo importa, aunque yo no siempre lo vea desde adentro.`);
   }
-  // 4: identity-based, ties area + experience
-  frasesPoder.push(`Soy ${prof} con ${añosTotalesExperiencia>0?añosTotalesExperiencia+" años":"una historia real"} detrás de mi trabajo en ${area}. No tengo que demostrarlo: ya está demostrado.`);
+  // 4: identity-based, ties profession + years, grammatically safe regardless of "area" phrasing
+  if(añosTotalesExperiencia>0){
+    frasesPoder.push(`Soy ${prof}, con ${añosTotalesExperiencia} años de relación con lo que sé hacer. No tengo que demostrarlo: ya está demostrado en cada persona a la que he ayudado.`);
+  }else{
+    frasesPoder.push(`Soy ${prof}. Lo que sé hacer ya está respaldado por mi experiencia real, no por lo que aún me falta.`);
+  }
 
   // ---- FRASES PARA REDES (construidas desde datos reales, sin plantillas vacías) ----
   const frasesRedes=[];
@@ -456,24 +460,6 @@ function generateAnalysis(d,h){
   else
     potencial+=`A medida que ${years>0?"sumes más años de práctica directa y documentes los resultados de tus clientes":"inicies tu práctica directa y documentes cada resultado"}, ese potencial se convierte en reputación comprobada y alcance multiplicado.`;
 
-  // ---- DECLARACIONES DE IDENTIDAD (afirman quién es la persona, no qué hace) ----
-  const declaraciones=[];
-  if(don.length>5){
-    declaraciones.push(`Soy alguien que nació con ${don.slice(0,90)}${don.length>90?'...':''}. Eso no es un detalle: es parte de mi identidad y de mi propósito.`);
-  }else{
-    declaraciones.push(`Tengo una forma de ver y acompañar a las personas que es propia, real, y mía. Eso es identidad, no solo una habilidad.`);
-  }
-  if(añosTotalesExperiencia>=5){
-    declaraciones.push(`Llevo ${añosTotalesExperiencia} años relacionándome con esto que sé hacer. Soy alguien con historia en ${area}, no alguien que está empezando a fingirlo.`);
-  }else{
-    declaraciones.push(`Soy alguien que está construyendo una historia real en ${area}, con cada persona que acompaño y cada experiencia que vivo.`);
-  }
-  if(dudaRaw.trim().length>5){
-    declaraciones.push(`Puedo sentir la duda y aun así ser quien soy. Dudar no me quita la autoridad que ya tengo: solo significa que soy humano/a y que me importa hacerlo bien.`);
-  }else{
-    declaraciones.push(`Confío en lo que sé y en cómo lo aplico. No necesito que nadie más lo valide para que sea verdad.`);
-  }
-
   // ---- RESPUESTA A LA DUDA ----
   let respuestaDudas="";
   if(dudaRaw.trim().length>5){
@@ -505,7 +491,7 @@ function generateAnalysis(d,h){
   else
     promesaBiblica={verso:"Confía en el Señor con todo tu corazón y no te apoyes en tu propia comprensión; reconócelo en todos tus caminos, y él allanará tus sendas.",referencia:"Proverbios 3:5-6"};
 
-  return{tagline,revelacion,tipoDominante,explicacionTipo:explicTipo[dom],habilidades:habs,fortalezas:fortalezas.slice(0,4),frasesPoder,frasesRedes,personasQueNecesitan,audienciaIdeal,potencial,declaraciones,respuestaDudas,promesaBiblica};
+  return{tagline,revelacion,tipoDominante,explicacionTipo:explicTipo[dom],habilidades:habs,fortalezas:fortalezas.slice(0,4),frasesPoder,frasesRedes,personasQueNecesitan,audienciaIdeal,potencial,respuestaDudas,promesaBiblica};
 }
 
 function canNext(){
@@ -734,6 +720,7 @@ function resultsHTML(){
       ${secLabel('TUS FRASES DE PODER PERSONAL','#A5B4FC')}
       <p style="font-size:12px;color:#94A3B8;margin-bottom:12px;">Decláralas en voz alta. Son afirmaciones de quién eres y para qué fuiste creado/a.</p>
       ${(ai.frasesPoder||[]).map(f=>`<div class="phrase-item">"${f}"</div>`).join('')}
+      <div style="background:rgba(165,180,252,.08);border-radius:10px;padding:12px 14px;margin-top:12px;border-left:3px solid #A5B4FC;"><p style="margin:0;font-size:12px;color:#C4B5FD;line-height:1.8;font-style:italic;">Te recomiendo repetir y escribir estas frases al menos 3 veces a la semana para fortalecer tu confianza e interiorizar la autoridad que ya tienes.</p></div>
     </div>
     <div style="background:linear-gradient(135deg,#4C1D95,#1E1B4B);border-radius:20px;padding:22px;margin-bottom:18px;">
       ${secLabel('FRASES PARA PUBLICAR EN TUS REDES','#C4B5FD')}
@@ -747,7 +734,6 @@ function resultsHTML(){
       <p style="margin:0;color:#1E293B;line-height:1.8;font-size:14px;">${ai.potencial||''}</p>
     </div>
     ${ai.respuestaDudas?`<div style="background:linear-gradient(135deg,#0F2027,#203A43,#1E2A3A);border-radius:20px;padding:22px;margin-bottom:18px;border:1px solid rgba(196,181,253,0.25);">${secLabel('NOTA IMPORTANTE SOBRE TU AUTORIDAD','#C4B5FD')}<p style="margin:0;font-size:14px;line-height:1.9;color:#F1F5F9;">${ai.respuestaDudas}</p></div>`:''}
-    ${(ai.declaraciones)?.length?`<div style="background:linear-gradient(135deg,#1a1f3a,#1E2A3A);border-radius:20px;padding:22px;margin-bottom:18px;border:1px solid rgba(253,230,138,0.3);">${secLabel('DECLARACIONES DE IDENTIDAD','#FDE68A')}<p style="margin:0 0 12px;color:#94A3B8;font-size:12px;">Di estas declaraciones en voz alta. Están escritas desde quien eres, no desde quien quieres ser.</p>${(ai.declaraciones||[]).map(a=>`<div class="affirmation-item">"${a}"</div>`).join('')}<div style="background:rgba(253,230,138,.08);border-radius:10px;padding:12px 14px;margin-top:12px;border-left:3px solid #FDE68A;"><p style="margin:0;font-size:12px;color:#FDE68A;line-height:1.8;font-style:italic;">Te recomiendo que repitas y escribas estas frases al menos 3 veces a la semana para fortalecer tu confianza e interiorizar la autoridad que ya tienes.</p></div></div>`:''}
     <div class="result-card" style="border:2px solid #E0E7FF;margin-bottom:18px;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
         <div>${secLabel('INFORMACIÓN DE AUTORIDAD PARA TUS PERFILES')}<div style="font-size:12px;color:#64748B;margin-top:-4px;">Lista para copiar en LinkedIn, Instagram bio o presentaciones</div></div>
